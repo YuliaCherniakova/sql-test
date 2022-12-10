@@ -1,0 +1,24 @@
+Задача 1. Напишите запрос, который выведет пилотов, которые в качестве второго пилота в августе этого года трижды ездили в аэропорт Шереметьево.
+
+SELECT pilot_id, name 
+FROM pilot JOIN flight ON pilot_id = second_pilot_id
+WHERE (flight_dt BETWEEN '2022-08-01' AND '2022-08-31') AND destination = 'Шереметьево'
+GROUP BY pilot_id
+HAVING COUNT(pilot_id) = 3
+
+-- Задача 2. Выведите пилотов старше 45 лет, совершали полеты на самолетах с количеством пассажиров больше 30.
+
+SELECT DISTINCT(pilot_id), name
+FROM (pilot JOIN flight ON pilot_id = first_pilot_id OR pilot_id = second_pilot_id) AS t
+    JOIN plane ON t.plane_id = plane.plane_id
+WHERE age > 45 AND cargo_flg = 0 AND quantity > 30
+
+-- Задача 3. Выведите ТОП 10 пилотов-капитанов (first_pilot_id), которые совершили наибольшее число грузовых перелетов в этом году.
+
+SELECT pilot_id, name, SUM(capacity)
+FROM (pilot JOIN flight ON pilot_id = first_pilot_id) AS t
+    JOIN plane ON t.plane_id = plane.plane_id
+WHERE YEAR(flight_dt) = YEAR(NOW()) AND cargo_flg = 1
+GROUP BY pilot_id
+ORDER BY SUM(capacity) DESC
+LIMIT 10
